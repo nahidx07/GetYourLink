@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechDaily Admin | Link Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+        .glass { background: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+        .input-dark { background: #0f172a; border: 1px solid #334155; color: white; transition: all 0.3s; }
+        .input-dark:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        
+        /* Scrollbar for textareas */
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: #0f172a; }
+        textarea::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="flex-grow flex items-center justify-center p-4">
+        <div class="glass p-8 rounded-xl shadow-2xl w-full max-w-md text-center">
+            <div class="mb-6">
+                <i class="fas fa-user-shield text-5xl text-blue-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2 text-white">Admin Access</h2>
+            <p class="text-slate-400 mb-6 text-sm">Login to manage TechDaily links</p>
+            
+            <form id="login-form" class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs text-slate-400 ml-1">Email Address</label>
+                    <input type="email" id="email" class="w-full p-3 rounded-lg input-dark mt-1" required>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 ml-1">Password</label>
+                    <input type="password" id="password" class="w-full p-3 rounded-lg input-dark mt-1" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold transition shadow-lg shadow-blue-900/50">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login Dashboard
+                </button>
+            </form>
+            <p id="login-error" class="text-red-400 text-sm mt-4 hidden bg-red-900/20 p-2 rounded border border-red-900"></p>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard-section" class="hidden flex-grow flex flex-col">
+        
+        <!-- Navbar -->
+        <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+            <div class="container mx-auto px-4 h-16 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 w-8 h-8 rounded flex items-center justify-center font-bold text-white">TD</div>
+                    <h1 class="text-lg font-bold text-slate-200">Admin Panel</h1>
+                </div>
+                <button id="logout-btn" class="text-slate-400 hover:text-white text-sm font-medium transition">
+                    <i class="fas fa-power-off mr-2"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <div class="container mx-auto p-4 md:p-6 space-y-8">
+            
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass p-5 rounded-xl border-l-4 border-blue-500">
+                    <p class="text-slate-400 text-xs uppercase tracking-wider">Total Links</p>
+                    <h3 id="stat-total-links" class="text-3xl font-bold text-white mt-1">0</h3>
+                </div>
+                <div class="glass p-5 rounded-xl border-l-4 border-green-500">
+                    <p class="text-slate-400 text-xs uppercase tracking-wider">Total Clicks</p>
+                    <h3 id="stat-total-clicks" class="text-3xl font-bold text-white mt-1">0</h3>
+                </div>
+                <div class="glass p-5 rounded-xl border-l-4 border-purple-500">
+                    <p class="text-slate-400 text-xs uppercase tracking-wider">Avg. Clicks</p>
+                    <h3 id="stat-avg-clicks" class="text-3xl font-bold text-white mt-1">0</h3>
+                </div>
+                <div class="glass p-5 rounded-xl border-l-4 border-yellow-500">
+                    <p class="text-slate-400 text-xs uppercase tracking-wider">System Status</p>
+                    <h3 class="text-xl font-bold text-green-400 mt-2 flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> Active
+                    </h3>
+                </div>
+            </div>
+
+            <!-- Create New Link Form -->
+            <div class="glass rounded-xl overflow-hidden">
+                <div class="bg-slate-800/50 p-4 border-b border-slate-700 flex justify-between items-center">
+                    <h3 class="font-bold text-lg text-blue-400"><i class="fas fa-plus-circle mr-2"></i>Create New Download Link</h3>
+                </div>
+                
+                <div class="p-6">
+                    <form id="create-link-form" class="space-y-6">
+                        <!-- Target URL -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Destination URL (File Link)</label>
+                            <div class="relative">
+                                <i class="fas fa-link absolute left-3 top-3.5 text-slate-500"></i>
+                                <input type="url" id="original-url" placeholder="https://drive.google.com/file/..." class="w-full pl-10 p-3 rounded-lg input-dark" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Ads Config -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Page 1 Ad -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-blue-400 uppercase">Step 1 Ad Code</label>
+                                <textarea id="ad-page1" rows="5" class="w-full p-3 rounded-lg input-dark text-xs font-mono" placeholder="Paste HTML/JS Script here..."></textarea>
+                                <p class="text-xs text-slate-500">Shown during the first 10s timer.</p>
+                            </div>
+
+                            <!-- Page 2 Ad -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-blue-400 uppercase">Step 2 Ad Code</label>
+                                <textarea id="ad-page2" rows="5" class="w-full p-3 rounded-lg input-dark text-xs font-mono" placeholder="Paste HTML/JS Script here..."></textarea>
+                                <p class="text-xs text-slate-500">Shown during the second verification step.</p>
+                            </div>
+
+                            <!-- Final Ad -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-green-400 uppercase">Final Page Ad (Optional)</label>
+                                <textarea id="ad-final" rows="5" class="w-full p-3 rounded-lg input-dark text-xs font-mono" placeholder="Paste HTML/JS Script here..."></textarea>
+                                <p class="text-xs text-slate-500">Shown above the Download button.</p>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="pt-4 border-t border-slate-700">
+                            <button type="submit" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
+                                <i class="fas fa-magic"></i> Generate Secure Link
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Success Popup -->
+                    <div id="success-msg" class="hidden mt-6 p-4 bg-green-900/30 border border-green-500/50 rounded-lg animate-fade-in">
+                        <div class="flex flex-col md:flex-row gap-4 items-center">
+                            <div class="text-green-400 text-2xl"><i class="fas fa-check-circle"></i></div>
+                            <div class="flex-grow w-full">
+                                <p class="text-green-200 font-bold mb-1">Link Generated Successfully!</p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="generated-link" readonly class="flex-1 bg-slate-900 border border-green-800 text-green-400 p-2 rounded text-sm font-mono">
+                                    <button onclick="copyGeneratedLink()" class="bg-green-700 hover:bg-green-600 text-white px-4 rounded font-bold text-sm">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Links Table -->
+            <div class="glass rounded-xl overflow-hidden">
+                <div class="bg-slate-800/50 p-4 border-b border-slate-700">
+                    <h3 class="font-bold text-lg text-slate-200">Recent Links</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900 text-slate-400 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Slug / ID</th>
+                                <th class="p-4">Destination</th>
+                                <th class="p-4 text-center">Clicks</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="links-table-body" class="text-sm divide-y divide-slate-700">
+                            <!-- Rows injected via JS -->
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-slate-500">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, setDoc, doc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // --- আপনার ফায়ারবেস কনফিগ এখানে বসান ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // ---------------------------------------
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const loginForm = document.getElementById('login-form');
+        const createForm = document.getElementById('create-link-form');
+        const linksTableBody = document.getElementById('links-table-body');
+
+        // Auth State Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                loadDashboardData();
+            } else {
+                loginSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+            }
+        });
+
+        // Login Function
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('login-error');
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                errorMsg.classList.add('hidden');
+            } catch (error) {
+                errorMsg.innerText = "Login Failed: " + error.message;
+                errorMsg.classList.remove('hidden');
+            }
+        });
+
+        // Logout Function
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+        // Create Link Function
+        createForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = createForm.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            const originalUrl = document.getElementById('original-url').value;
+            const page1Ad = document.getElementById('ad-page1').value;
+            const page2Ad = document.getElementById('ad-page2').value;
+            const finalAd = document.getElementById('ad-final').value;
+
+            // Generate 6 char random slug
+            const slug = Math.random().toString(36).substring(2, 8); 
+
+            try {
+                await setDoc(doc(db, "links", slug), {
+                    original_url: originalUrl,
+                    slug: slug,
+                    ads: { 
+                        page1: page1Ad, 
+                        page2: page2Ad, 
+                        final: finalAd 
+                    },
+                    clicks: 0,
+                    created_at: serverTimestamp()
+                });
+
+                // Show Success
+                const fullLink = `${window.location.origin}/index.html?id=${slug}`;
+                document.getElementById('generated-link').value = fullLink;
+                document.getElementById('success-msg').classList.remove('hidden');
+                
+                // Reset Form but keep success msg for a bit
+                createForm.reset();
+                
+            } catch (error) {
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Load Realtime Data
+        function loadDashboardData() {
+            const q = query(collection(db, "links"), orderBy("created_at", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                let totalLinks = 0;
+                let totalClicks = 0;
+                let html = '';
+
+                if (snapshot.empty) {
+                    linksTableBody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No links created yet.</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    totalLinks++;
+                    totalClicks += (data.clicks || 0);
+                    
+                    const date = data.created_at ? data.created_at.toDate().toLocaleDateString() : 'Just now';
+                    const fullLink = `${window.location.origin}/index.html?id=${data.slug}`;
+
+                    html += `
+                        <tr class="hover:bg-slate-800/50 transition group">
+                            <td class="p-4 text-slate-400 whitespace-nowrap">${date}</td>
+                            <td class="p-4">
+                                <span class="bg-slate-700 text-blue-300 px-2 py-1 rounded font-mono text-xs">${data.slug}</span>
+                            </td>
+                            <td class="p-4 text-slate-300 truncate max-w-[150px]" title="${data.original_url}">
+                                ${data.original_url}
+                            </td>
+                            <td class="p-4 text-center font-bold text-white">${data.clicks}</td>
+                            <td class="p-4 text-right space-x-2">
+                                <button onclick="copyToClipboard('${fullLink}')" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded transition" title="Copy Link">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button onclick="deleteLink('${data.slug}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded transition" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('stat-total-links').innerText = totalLinks;
+                document.getElementById('stat-total-clicks').innerText = totalClicks;
+                document.getElementById('stat-avg-clicks').innerText = totalLinks > 0 ? Math.round(totalClicks / totalLinks) : 0;
+                linksTableBody.innerHTML = html;
+            });
+        }
+
+        // Global Helper Functions
+        window.copyGeneratedLink = function() {
+            const copyText = document.getElementById("generated-link");
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value);
+            
+            const btn = document.querySelector('#success-msg button');
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = originalText, 2000);
+        }
+
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Link copied to clipboard!");
+            });
+        }
+
+        window.deleteLink = async function(slug) {
+            if(confirm('Are you sure you want to delete this link? This cannot be undone.')) {
+                try {
+                    await deleteDoc(doc(db, "links", slug));
+                } catch (e) {
+                    alert("Error deleting: " + e.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
